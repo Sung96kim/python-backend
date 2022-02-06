@@ -1,7 +1,6 @@
-from turtle import back
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Text
-from db_init import Base
+from ..db_init import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import *
 
@@ -14,7 +13,7 @@ class User(Base):
     posts = relationship("Post", back_populates="user")
 
     #Add uselist=False when creating a one to one relationship, since one to many is default
-    posts = relationship("Post", back_populates="user", userlist=False)
+    # posts = relationship("Post", back_populates="user", userlist=False)
 
 class Post(Base):
     __tablename__ = 'posts'
