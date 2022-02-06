@@ -11,6 +11,8 @@ models.Base.metadata.create_all(bind=engine)
 app.include_router(users.router)
 app.include_router(posts.router)
 
-@app.get("/")
-def root(db: Session = Depends(get_db)):
-    return {"Status" : "Success"}
+# @app.get("/")
+# def root(db: Session = Depends(get_db)):
+#     return "Database Active"
+
+    
