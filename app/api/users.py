@@ -5,9 +5,12 @@ from ..schema import GetUser, CreateUser, UpdateUser
 from ..db_init import get_db
 from ..db.models import User
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/user",
+    tags=["Users"]
+)
 
-@router.get("/user/{user_id}", response_model= GetUser)
+@router.get("/{user_id}", response_model = GetUser)
 async def get_user(user_id: int, db: Session = Depends(get_db)):
     
     user = db.query(User).filter(User.id == user_id).first()
@@ -18,7 +21,8 @@ async def get_user(user_id: int, db: Session = Depends(get_db)):
         
     return user
 
-@router.post("/user")
+#Should not return password FIX***
+@router.post("/")
 async def create_user(user: CreateUser, db: Session = Depends(get_db)):
     
     hashed_pwd = hash_pwd(user.password)
@@ -34,7 +38,7 @@ async def create_user(user: CreateUser, db: Session = Depends(get_db)):
     
     return created_user
 
-@router.put("/user/{user_id}")
+@router.put("/{user_id}")
 async def update_user(user_id: int, update_user: UpdateUser, db: Session = Depends(get_db)):
     
     found_user = db.query(User).filter(User.id == user_id)
@@ -50,7 +54,7 @@ async def update_user(user_id: int, update_user: UpdateUser, db: Session = Depen
     
     return found_user.first()
 
-@router.delete("/user/{user_id}")
+@router.delete("/{user_id}")
 async def delete_user(user_id: int, db: Session = Depends(get_db)):
     
     found_user = db.query(User).filter(User.id == user_id)

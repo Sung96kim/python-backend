@@ -21,18 +21,23 @@ class UpdatePost(PostBase):
 class User(BaseModel):
     email: EmailStr
     password: str
-    
+    created_at: datetime
     class Config: 
         orm_mode = True
         
-class GetUser(User):
+class GetUser(BaseModel):
     id: int
+    email: EmailStr
     created_at: datetime
-    pass
+    class Config: 
+        orm_mode = True
 
 class CreateUser(User):
     pass
 
 class UpdateUser(User):
-    created_at: datetime
     pass
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
