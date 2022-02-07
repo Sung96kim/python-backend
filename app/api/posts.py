@@ -1,6 +1,8 @@
 from fastapi import Depends, APIRouter, status, Response, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
+
+from ..oauth import get_current_user
 from ..schema import GetPost, CreatePost, UpdatePost
 from ..db_init import get_db
 from ..db.models import Post
@@ -33,22 +35,27 @@ async def get_post(post_id: int, db: Session = Depends(get_db)):
     return single_post
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_post(create_post: CreatePost, db: Session = Depends(get_db)):
+async def create_post(create_post: CreatePost, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)
+    ):
 
-    new_post = Post(**create_post.dict())
+    new_post = Post(user_id=current_user.id, **create_post.dict())
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
     return new_post
 
 @router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_post(post_id: int, db: Session = Depends(get_db)):
+async def delete_post(post_id: int, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
     
     post =  db.query(Post).filter(Post.id == post_id)
     
     if post.first() == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Post {post_id} does not exist")
+    
+    if post.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Not authorized to delete post")
         
     post.delete(synchronize_session=False)
     db.commit()
@@ -56,7 +63,7 @@ async def delete_post(post_id: int, db: Session = Depends(get_db)):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @router.put("/{post_id}")
-async def update_post(post_id: int, update_post: UpdatePost, db: Session = Depends(get_db)):
+async def update_post(post_id: int, update_post: UpdatePost, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
     
     post_query =  db.query(Post).filter(Post.id == post_id)
     
@@ -65,6 +72,10 @@ async def update_post(post_id: int, update_post: UpdatePost, db: Session = Depen
     if post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Post {post_id} does not exist")
+        
+    if post.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Not authorized to delete post")
         
     post_query.update(update_post.dict(), synchronize_session=False)
     db.commit()

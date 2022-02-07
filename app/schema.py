@@ -5,6 +5,7 @@ class PostBase(BaseModel):
     title: str
     author: str
     content: str
+    user_id: int
     class Config: 
         orm_mode = True
         

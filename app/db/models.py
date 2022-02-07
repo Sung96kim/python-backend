@@ -1,6 +1,6 @@
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from sqlalchemy.sql.expression import text
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
 from ..db_init import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import *
@@ -23,5 +23,5 @@ class Post(Base):
     author = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
-    # user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     # owner = relationship("User", back_populates="post")
